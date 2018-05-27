@@ -76,6 +76,7 @@ library(tidytext)
 #      str_replace_all("â€™", "\\'") %>%
 #      str_replace_all("â€", "\\'") %>%
 #      str_replace_all("â€˜", "\\'") %>%
+#      str_replace_all("â€“", "-") 
 #      str_replace_all("\\'s", "") %>%
 #      str_replace_all("\\'S", "") %>%
 #      str_replace_all("\\'", "") %>%
