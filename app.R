@@ -5,91 +5,40 @@ library(dplyr)
 library(tidyr)
 library(tidytext)
 
-#  youtube <- read.csv("USVideos.csv", stringsAsFactors = F)
-# 
-#  bland <- function(x) {
-#    replacement <- x %>%
-#      str_replace_all("Ã€", "A") %>%
-#      str_replace_all("Ã‚", "A") %>%
-#      str_replace_all("Ãƒ", "A") %>%
-#      str_replace_all("Ã„", "A") %>%
-#      str_replace_all("Ã…", "A") %>%
-#      str_replace_all("Ã†", "AE") %>%
-#      str_replace_all("Ã‡", "C") %>%
-#      str_replace_all("Ãˆ", "E") %>%
-#      str_replace_all("Ã‰", "E") %>%
-#      str_replace_all("ÃŠ", "E") %>%
-#      str_replace_all("Ã‹", "E") %>%
-#      str_replace_all("ÃŒ", "I") %>%
-#      str_replace_all("ÃŽ", "I") %>%
-#      str_replace_all("Ã‘", "N") %>%
-#      str_replace_all("Ã’", "O") %>%
-#      str_replace_all("Ã“", "O") %>%
-#      str_replace_all("Ã”", "O") %>%
-#      str_replace_all("Ã•", "O") %>%
-#      str_replace_all("Ã–", "O") %>%
-#      str_replace_all("Ã—", "X") %>%
-#      str_replace_all("Ã˜", "0") %>%
-#      str_replace_all("Ã™", "U") %>%
-#      str_replace_all("Ãš", "U") %>%
-#      str_replace_all("Ã›", "U") %>%
-#      str_replace_all("Ãœ", "U") %>%
-#      str_replace_all("Ãž", "D") %>%
-#      str_replace_all("ÃŸ", "B") %>%
-#      str_replace_all("Ã¡", "A") %>%
-#      str_replace_all("Ã¢", "A") %>%
-#      str_replace_all("Ã£", "A") %>%
-#      str_replace_all("Ã¤", "A") %>%
-#      str_replace_all("Ã¥", "A") %>%
-#      str_replace_all("Ã¦", "AE") %>%
-#      str_replace_all("Ã§", "C") %>%
-#      str_replace_all("Ã¨", "E") %>%
-#      str_replace_all("Ã©", "E") %>%
-#      str_replace_all("Ãª", "E") %>%
-#      str_replace_all("Ã«", "E") %>%
-#      str_replace_all("Ã¬", "I") %>%
-#      str_replace_all("Ã®", "I") %>%
-#      str_replace_all("Ã¯", "I") %>%
-#      str_replace_all("Ã°", "O") %>%
-#      str_replace_all("Ã±", "N") %>%
-#      str_replace_all("Ã²", "O") %>%
-#      str_replace_all("Ã³", "O") %>%
-#      str_replace_all("Ã´", "O") %>%
-#      str_replace_all("Ãµ", "O") %>%
-#      str_replace_all("Ã¶", "O") %>%
-#      str_replace_all("Ã·", "/") %>%
-#      str_replace_all("Ã¸", "0") %>%
-#      str_replace_all("Ã¹", "U") %>%
-#      str_replace_all("Ãº", "U") %>%
-#      str_replace_all("Ã»", "U") %>%
-#      str_replace_all("Ã¼", "U") %>%
-#      str_replace_all("Ã½", "Y") %>%
-#      str_replace_all("Ã¾", "P") %>%
-#      str_replace_all("Ã¿", "Y") %>%
-#      str_replace_all("Å¸", "Y") %>%
-#      str_replace_all("Å¾", "Z") %>%
-#      str_replace_all("Å“", "CE") %>%
-#      str_replace_all("Å", "S") %>%
-#      str_replace_all("Å½", "Z") %>%
-#      str_replace_all("Æ’", "F") %>%
-#      str_replace_all("ã€", "\\'") %>%
-#      str_replace_all("â€™", "\\'") %>%
-#      str_replace_all("â€", "\\'") %>%
-#      str_replace_all("â€˜", "\\'") %>%
-#      str_replace_all("\\'s", "") %>%
-#      str_replace_all("\\'S", "") %>%
-#      str_replace_all("\\'", "") %>%
-#      str_replace_all("[^[:alnum:]]", " ") %>%
-#      str_replace_all("\\s+", " ") %>%
-#      toupper()
-#  }
-# 
-# # Create vector of all words
-#  list_title <- unlist(lapply(youtube$title, bland))
-# 
-#  title_df <- data.frame(list_title)
-# 
-#  write.csv(title_df, "TitleList.csv", row.names = F)
+youtube <- read.csv("USVideos.csv", stringsAsFactors = F)
+
+no_emojis <- function(x) {
+  phrase <- x
+  if (str_detect(phrase, "ð")) {
+    phrase <- ""  
+  } 
+  if (str_detect(phrase, "\\$")) {
+    phrase <- "$"
+  }
+  str_replace_all(phrase, "\\'s", "") %>% 
+    str_replace_all("\\'S", "")
+}
+
+bland <- function(x) { 
+  if (str_detect(x, "ð")) {
+    title <- iconv(x, "latin1", "UTF-8", sub = "")
+  } else {
+    title <-  iconv(x, "UTF-8", "UTF-8", sub = "")  %>% 
+      str_replace_all("[^[:graph:]]", " ") 
+  }
+  list <- unlist(str_split(title, " "))
+  paste(lapply(list, no_emojis), collapse = " ") %>% 
+    str_replace_all("([.,?*:#&/\\\\<>!\\{\\}\\[\\]\\(\\)\\|])", "") %>% 
+    toupper()
+}
+
+
+# Create vector of all words
+list_title <- unlist(lapply(youtube$title, bland))
+
+title_df <- data.frame(list_title)
+
+write.csv(title_df, "TitleList.csv", row.names = F)
 ###########################################
 ###########################################
 ###########################################
@@ -136,7 +85,7 @@ df_bing <- inner_join(bing_sentiments, df_u, by = "word")
 plain_words <- c("THE", "THEIR", "THEY", "THEYRE", "YOUR", "YOU" , "A", "AN", "IS", "ISNT", "WILL",
                  "WONT", "DID", "DIDNT", "HAVE", "HAD", "WHEN", "WHERE", "HOW", "WHAT", "wHY", 
                  "HAVENT", "NOT", "SHOULD", "WOULD", "COULD", "BE", "BEING", "GET", "HADNT", "WE",
-                 "THIS", "THERE", "IN", "MY", "TO", "AS")
+                 "THIS", "THERE", "IN", "MY", "TO", "AS", "I", "-")
 
 df_c <- filter(df_u, word != plain_words)
 
