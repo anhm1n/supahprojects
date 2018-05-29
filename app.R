@@ -49,29 +49,29 @@ write.csv(title_df, "TitleList.csv", row.names = F)
 # ###########################################
 # ###########################################
 # ###########################################
-# list_all <- str_split(list_title, " ") %>%
-#   unlist()
+list_all <- str_split(list_title, " ") %>%
+  unlist()
 # # # 
 # # # # Create vector of unique words
-#  list_unique <- unique(list_all)
-# 
-#  df_u <- data.frame(list_unique, stringsAsFactors = F)
-# 
-#  colnames(df_u)[1] <- "word"
-# 
-#  count_strings <- function(x) {
-#    sum(str_count(list_all, x))
-#  }
-# 
-#  df_u <- mutate(df_u, number = lapply(word, count_strings))
-# 
-#  df_u <- filter(df_u, word != " ")
-# 
-# x <- vapply(df_u$number, length, 1L)
-# df_u <- df_u[rep(rownames(df_u), x), ]
-# df_u$number <- unlist(df_u$number, use.names = FALSE)
-# 
-# write.csv(df_u, file = "WordListFromTitles.csv", row.names = F)
+ list_unique <- unique(list_all)
+
+ df_u <- data.frame(list_unique, stringsAsFactors = F)
+
+ colnames(df_u)[1] <- "word"
+
+ count_strings <- function(x) {
+   sum(str_count(list_all, x))
+ }
+
+ df_u <- mutate(df_u, number = lapply(word, count_strings))
+
+ df_u <- filter(df_u, word != " ")
+
+x <- vapply(df_u$number, length, 1L)
+df_u <- df_u[rep(rownames(df_u), x), ]
+df_u$number <- unlist(df_u$number, use.names = FALSE)
+
+write.csv(df_u, file = "WordListFromTitles.csv", row.names = F)
 ##########################################################################
 ##########################################################################
 ##########################################################################
@@ -93,7 +93,7 @@ plain_words <- c("THE", "THEIR", "THEY", "THEYRE", "YOUR", "YOU" , "A", "AN", "I
                  "HAVENT", "NOT", "SHOULD", "WOULD", "COULD", "BE", "BEING", "GET", "HADNT", "WE",
                  "THIS", "THERE", "IN", "MY", "TO", "AS", "I", "-", "B", "C", "D", "E", "F", "G", "H",
                  "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y",
-                 "Z", "ER", "ING", "ER", "AL", "AR")
+                 "Z", "ER", "ING", "ER", "AL", "AR", "IN", "FROM")
 
 df_c <- filter(df_u, word != plain_words)
 
@@ -150,7 +150,7 @@ my_server <- function(input, output) {
       lvls <- levels(factorize()$word)
       string <- lvls[round(input$my_click$y)]
       
-      df_samp <- df_t[sum(unlist(str_split(df_t$list_title, " ")) == as.character(string) == 1), ]
+      df_samp <- df_t[sum(unlist(str_split(df_t$list_title, " ")) == as.character(string) >= 1), ]
       t_samp <- df_samp[sample(nrow(df_samp), 3), ]
       
       cat(paste0(string, "\nNumber = ", subset(decipher(), word == as.character(string))[, "number"], 
