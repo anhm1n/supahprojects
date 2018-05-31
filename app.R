@@ -4,7 +4,6 @@ library(stringr)
 library(dplyr)
 library(tidyr)
 library(tidytext)
-library(iterators)
 
 # unwanted_array = list(    'Š'='S', 'š'='s', 'Ž'='Z', 'ž'='z', 'À'='A', 'Á'='A', 'Â'='A', 'Ã'='A', 'Ä'='A', 'Å'='A', 'Æ'='A', 'Ç'='C', 'È'='E', 'É'='E',
 #                            'Ê'='E', 'Ë'='E', 'Ì'='I', 'Í'='I', 'Î'='I', 'Ï'='I', 'Ñ'='N', 'Ò'='O', 'Ó'='O', 'Ô'='O', 'Õ'='O', 'Ö'='O', 'Ø'='O', 'Ù'='U',
@@ -103,6 +102,7 @@ df_c <- df_u[!(df_u$word %in% plain_words),]
 
 
 my_ui <- fluidPage(
+  theme = "style.css",
   sidebarLayout(
     sidebarPanel(
       selectInput("choice",  label = strong("Word Searches"), 
@@ -112,8 +112,17 @@ my_ui <- fluidPage(
                                  "All" = "all"))
     ),
     mainPanel(
-      plotOutput('wordBar', click = "my_click"),
-      verbatimTextOutput('wordText')
+      tabsetPanel(type = "tabs",
+        tabPanel("Breakdown",
+          h2("What are the most common words used in YouTube videos on the Trending page?"),
+          p(htmlOutput("breakdown"))  
+        ),
+        tabPanel("Word Chart",
+          plotOutput('wordBar', click = "my_click"),
+          verbatimTextOutput('wordText'),
+          p(htmlOutput("description"))
+        )
+      )
     )
   )
 )
@@ -164,6 +173,49 @@ my_server <- function(input, output) {
                  "\n", t_samp[2],
                  "\n", t_samp[3]))
     }
+  })
+  
+  output$description <- renderPrint({
+    if(input$choice == "default") {
+      HTML(paste0("As we observe the most common default words in YouTube's trending page, we notice
+            that many of the words are words used in popular movie and tv show trailers. It seems
+            that the YouTube Trending page leans towards promotion of studio created content instead 
+            of individual creator based content in this case. Some words such as <b>ME, MAKEUP, </b>and<b> DAY </b> indicate
+            that YouTubers who are promiment enough by name can make it onto YouTube. It also
+            indicates a diverse audience, and that people could be genuinely interested in the 
+            lives of promiment YouTubers. It seems that music videos are very popular by the appearance 
+            of <b>AUDIO, MUSIC, VIDEO</b> and <b>FT</b>, demonstrating YouTube's ability to promote
+            music, but primarily for corporate size figures. Lastly, words like <b>NEW</b> and <b>2018</b>
+            show some evidence that YouTube's audience prefers new and/or updated content."))  
+    } else if(input$choice == "positive") {
+      HTML(paste0("We can probably guess with strong confidence that <b>TRUMP</b> is not a reference to
+            \'winning\' but the US President Trump. It seems that due to his controversial nature, it
+            can generate quite a number of views to reach Trending consistenly. <b>MARVEL</b> is another
+            one that probably means the studio Marvel. A few other words like <b>HONEST</b> and <b>HOT</b>
+            seem to be dominated by big channels that started on YouTube, Honest Trailers and First We Feast.
+            Most of the other words like <b>BEST</b> and <b>LIKE</b> seem to be informative videos that catch
+            a viewer's attention by showing viewers the best extremes of life."))  
+    } else if(input$choice == "negative") {
+      HTML(paste0("Words like <b>EXPENSIVE</b> and <b>FAKE</b> seem to be common because of their appeal to YouTube's 
+            general audience. With the appearance of <b>DEATH</b> and <b>DEAD</b>, it seems that stuff that people
+            don't regularly experience fascinates them. Many of these words like <b>BREAK</b> and <b>SUCK</b>
+            are not being used with a negative connotation. There still appears to be channels like CinemaSins
+            and Vanity fair, that dominate thus bringing up the words <b>WRONG</b> and <b>VANITY</b>. Music videos
+            also introduce a lots of words that make the top negative list because it seems everyone likes a good 
+            sad song once in a while."))
+    } else {
+      HTML(paste0("This chart just shows the top words in general. As we can note, many of them are used for grammatical purposes,
+            and we assume not to be important enought to consider."))
+    }
+  })
+  
+  output$breakdown <- renderPrint({
+    HTML(paste0("Titles are used to briefly describe and label a video. With the boom in video production and content, however,
+          it becomes hard to stand apart. In this section, we will explore what words are commonly found in these videos
+          to uncover any correlations. "))
+    HTML(paste0("After exploring the data, users may find that many large studios basically control the Trending Page. They seem to push
+          many official trailers and music videos that dominate the Trending page. So, it seems as if the key to being famous on YouTube 
+                as of the moemnt is to be immenseely powerful or famous already."))
   })
 }
 
